@@ -1,0 +1,33 @@
+﻿  Enemy.cpp
+  game.cpp
+  main.cpp
+  Player.cpp
+d:\vs studio projects\topdome\player.cpp(9): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+d:\vs studio projects\topdome\player.cpp(76): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+d:\vs studio projects\topdome\player.cpp(77): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+  window.cpp
+  World.cpp
+d:\vs studio projects\topdome\world.cpp(29): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=int
+          ]
+d:\vs studio projects\topdome\world.cpp(46): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+  Generating Code...
+  TopDome.vcxproj -> D:\VS Studio Projects\TopDome\Debug\TopDome.exe
