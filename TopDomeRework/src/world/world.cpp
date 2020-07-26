@@ -8,6 +8,8 @@ World::World(we::App* app, int winX, int winY)
     m_winSize = { winX, winY };
     m_map = "";
     m_score = 3;
+    
+    m_fGravity = 50.f;
 
     m_textbox.setString("Lives: X");
     m_textbox.setPosition(winX - m_textbox.getText().getLocalBounds().width / 1.5f,
@@ -51,6 +53,27 @@ void World::loadMap(std::string path)
     else std::cout << "Could not load map " << path << std::endl;
 }
 
+void World::Update(float deltaTime)
+{
+    if (m_bullets.size() > 0)
+    {
+        for (auto iter = m_bullets.begin(); iter != m_bullets.end();)
+        {
+            iter->Update(deltaTime);
+
+            if (getTileFromGlobal(iter->getPosition()) == '#')
+            {
+                iter = m_bullets.erase(iter);
+            }
+            else iter++;
+        }
+    }
+
+#ifdef DEBUG
+    std::cout << "Bullets: " << m_bullets.size() << "\n";
+#endif
+}
+
 char World::getTileFromLocal(int x, int y)
 {
     return m_map[(y * m_mapSize.x) + x];
@@ -84,6 +107,13 @@ void World::Draw(sf::RenderWindow& window)
     // Draw the GUI
     m_textbox.setString("Lives: " + std::to_string(m_score));
     m_textbox.Draw(window);
+
+    // Draw Bullets
+    if (m_bullets.size() > 0)
+    {
+        for (auto& i : m_bullets)
+            i.Draw(&window);
+    }
 }
 
 void World::setScore(int score)
@@ -94,6 +124,21 @@ void World::setScore(int score)
 int World::getScore()
 {
     return m_score;
+}
+
+float World::getGravity()
+{
+    return m_fGravity;
+}
+
+void World::setGravity(float g)
+{
+    m_fGravity = g;
+}
+
+std::vector<Bullet>* World::getBulletVector()
+{
+    return &m_bullets;
 }
 
 sf::Vector2i World::getWindowSize()

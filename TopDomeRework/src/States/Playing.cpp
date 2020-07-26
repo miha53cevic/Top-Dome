@@ -24,6 +24,7 @@ void Playing::HandleInput(sf::Event & e)
 
 void Playing::Update(float deltaTime)
 {
+    m_world.Update(deltaTime);
     m_player.Update(deltaTime);
 }
 

@@ -9,32 +9,35 @@ class Player
 public:
     Player(World* world);
 
-    void Draw(sf::RenderWindow& window);
-    void HandleInput(sf::Event & e);
-    void Update(float deltaTime);
+    void Draw           (sf::RenderWindow& window);
+    void HandleInput    (sf::Event & e);
+    void Update         (float deltaTime);
 
-    void resetPos();
+    void resetPos       ();
 
     void changeCharacter(int index);
+    void changeSpeed    (float fSpeed);
 
     enum class Direction
     {
-        LEFT, RIGHT, NOT_MOVING
+        LEFT, 
+        RIGHT,
+        NOT_MOVING
     };
 
 private:
-    void Collision();
-    void setSkinDirection(Direction dir);
+    void Collision          ();
+    void setSkinDirection   (Direction dir);
+    void Shoot              ();
 
     World* m_world;
 
-    sf::Vector2f m_position;
     sf::RectangleShape m_player;
     int m_skinIndex;
 
-    float m_fGravity;
     float m_fSpeed;
     float m_fJumpSpeed;
+
     sf::Vector2f m_velocity;
 
     ToggleKey m_jumpKey;

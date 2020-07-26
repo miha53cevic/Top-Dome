@@ -8,7 +8,6 @@ Player::Player(World * world)
     , m_shootKey(sf::Keyboard::Space, 0.4f)
 {
     m_fSpeed = 200.f;
-    m_fGravity = 50.f;
     m_fJumpSpeed = 1000.f;
     m_velocity = { 0, 0 };
 
@@ -31,7 +30,7 @@ void Player::HandleInput(sf::Event & e)
 void Player::Update(float deltaTime)
 {
     // Gravity
-    m_velocity.y += m_fGravity * deltaTime;
+    m_velocity.y += m_world->getGravity() * deltaTime;
 
     // Controls
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
@@ -56,7 +55,7 @@ void Player::Update(float deltaTime)
     }
     if (m_shootKey.isKeyPressed())
     {
-
+        Shoot();
     }
 
     Collision();
@@ -78,6 +77,11 @@ void Player::changeCharacter(int index)
         index = 0;
 
     m_skinIndex = index;
+}
+
+void Player::changeSpeed(float fSpeed)
+{
+    m_fSpeed = fSpeed;
 }
 
 void Player::Collision()
@@ -116,7 +120,6 @@ void Player::Collision()
     // Top of the map
     if (topLeft.y + yVel.y <= 0)
         m_velocity.y = 0;
-    
 }
 
 void Player::setSkinDirection(Direction dir)
@@ -136,4 +139,11 @@ void Player::setSkinDirection(Direction dir)
         sf::IntRect rect(32 * 2, m_skinIndex * 32, 32, 32);
         m_player.setTextureRect(rect);
     }
+}
+
+void Player::Shoot()
+{
+    Bullet temp(m_player.getPosition().x, m_player.getPosition().y);
+    temp.setVelocity(300.0f, m_bLookingLeft);
+    m_world->getBulletVector()->push_back(temp);
 }
