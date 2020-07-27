@@ -147,3 +147,7 @@ void Player::Shoot()
     temp.setVelocity(300.0f, m_bLookingLeft);
     m_world->getBulletVector()->push_back(temp);
 }
+
+void Player::EnemyCollision()
+{
+}

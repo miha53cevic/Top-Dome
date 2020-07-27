@@ -6,6 +6,7 @@
 
 #include "../GUI/TextBox.h"
 #include "Bullet.h"
+#include "spawner.h"
 
 class App;
 
@@ -34,6 +35,7 @@ public:
 
     sf::Vector2i getWindowSize();
     sf::Vector2f getSpawnpoint();
+    sf::Vector2f getSpawnerPos();
 
 private:
     sf::Vector2i m_mapSize;
@@ -47,9 +49,11 @@ private:
     we::TextBox  m_textbox;
 
     sf::Vector2f m_spawnpoint;
-    sf::Vector2f m_spawnerLocation;
+    sf::Vector2f m_spawnerPos;
 
     float        m_fGravity;
 
     std::vector<Bullet> m_bullets;
+
+    Spawner      m_spawner;
 };

@@ -6,8 +6,10 @@ World::World(we::App* app, int winX, int winY)
     : m_textbox(app)
 {
     m_winSize = { winX, winY };
+
+    // Default values
     m_map = "";
-    m_score = 3;
+    m_score = 0;
     
     m_fGravity = 50.f;
 
@@ -46,15 +48,17 @@ void World::loadMap(std::string path)
                 if (getTileFromLocal(j, i) == 'S')
                     m_spawnpoint = sf::Vector2f(j * m_blockSize.x, i * m_blockSize.y);
                 else if (getTileFromLocal(j, i) == 'E')
-                    m_spawnerLocation = sf::Vector2f(j * m_blockSize.x, i * m_blockSize.y);
+                    m_spawnerPos = sf::Vector2f(j * m_blockSize.x, i * m_blockSize.y);
             }
         }
+        m_spawner.setPosition(m_spawnerPos);
     }
     else std::cout << "Could not load map " << path << std::endl;
 }
 
 void World::Update(float deltaTime)
 {
+    // Remove bullets outside of the map
     if (m_bullets.size() > 0)
     {
         for (auto iter = m_bullets.begin(); iter != m_bullets.end();)
@@ -72,6 +76,47 @@ void World::Update(float deltaTime)
 #ifdef DEBUG
     std::cout << "Bullets: " << m_bullets.size() << "\n";
 #endif
+
+    // Round Manager
+    if (m_spawner.getEnemyCount() == 0)
+    {
+        m_spawner.SpawnEnemy(std::make_unique<Enemy>(this));
+    }
+    m_spawner.Update(deltaTime);
+
+    // Bullet VS Enemy Collision
+    for (auto bullet = m_bullets.begin(); bullet != m_bullets.end();)
+    {
+        bool hit = false;
+
+        for (auto enemy = m_spawner.getEnemies()->begin(); enemy != m_spawner.getEnemies()->end();)
+        {
+            sf::FloatRect bulletRect = bullet->getBullet()->getGlobalBounds();
+            sf::FloatRect enemyRect = enemy->get()->getEnemy()->getGlobalBounds();
+
+            if (bulletRect.intersects(enemyRect))
+            {
+                hit = true;
+
+                // Delete the bullet
+                bullet = m_bullets.erase(bullet);
+                
+                // If the enemy is dead delete him
+                if (!enemy->get()->Damage(1))
+                {
+                    enemy = m_spawner.getEnemies()->erase(enemy);
+                }
+                else enemy++;
+            }
+            else
+            {
+                enemy++;
+            }
+        }
+
+        if (!hit)
+            bullet++;
+    }
 }
 
 char World::getTileFromLocal(int x, int y)
@@ -114,6 +159,9 @@ void World::Draw(sf::RenderWindow& window)
         for (auto& i : m_bullets)
             i.Draw(&window);
     }
+
+    // Draw enemies
+    m_spawner.Draw(&window);
 }
 
 void World::setScore(int score)
@@ -149,4 +197,9 @@ sf::Vector2i World::getWindowSize()
 sf::Vector2f World::getSpawnpoint()
 {
     return m_spawnpoint;
+}
+
+sf::Vector2f World::getSpawnerPos()
+{
+    return m_spawnerPos;
 }

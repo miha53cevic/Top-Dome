@@ -45,6 +45,11 @@ public:
         return m_bullet.getPosition();
     }
 
+    sf::RectangleShape* getBullet()
+    {
+        return &m_bullet;
+    }
+
 	bool getDir()
 	{
 		return m_bLeft;

@@ -29,11 +29,11 @@ private:
     void Collision          ();
     void setSkinDirection   (Direction dir);
     void Shoot              ();
+    void EnemyCollision     ();
 
     World* m_world;
 
     sf::RectangleShape m_player;
-    int m_skinIndex;
 
     float m_fSpeed;
     float m_fJumpSpeed;
@@ -44,4 +44,5 @@ private:
     ToggleKey m_shootKey;
 
     bool m_bLookingLeft;
+    int  m_skinIndex;
 };
