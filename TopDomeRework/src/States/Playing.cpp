@@ -1,5 +1,6 @@
 #include "Playing.h"
 #include "../Engine/App.h"
+#include "GameOver.h"
 
 Playing::Playing(we::App * app)
     : State(app)
@@ -26,6 +27,13 @@ void Playing::Update(float deltaTime)
 {
     m_world.Update(deltaTime);
     m_player.Update(deltaTime);
+
+    // Check for GameOver
+    if (m_world.GameOver())
+    {
+        m_app->getStateMachine().AddState(std::make_unique<GameOver>(m_app), false);
+        m_app->getStateMachine().ProcessStateChanges();
+    }
 }
 
 void Playing::Draw(sf::RenderWindow & window)

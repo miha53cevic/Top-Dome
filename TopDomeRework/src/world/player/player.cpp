@@ -47,7 +47,9 @@ void Player::Update(float deltaTime)
     }
 
     if (m_velocity.x == 0)
+    {
         setSkinDirection(Direction::NOT_MOVING);
+    }
 
     if (m_jumpKey.isKeyPressed())
     {

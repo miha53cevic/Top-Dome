@@ -20,6 +20,8 @@ namespace we
 
 		bool isEmpty();
 
+        void RemoveStateBack();
+
 		StateRef &GetActiveState();
 
         std::deque<StateRef> &GetStates();

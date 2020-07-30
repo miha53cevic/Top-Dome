@@ -9,10 +9,13 @@ World::World(we::App* app, int winX, int winY)
 
     // Default values
     m_map = "";
-    m_score = 0;
+    m_lives = 3;
+    m_round = 1;
+    m_bGameOver = false;
     
     m_fGravity = 50.f;
 
+    // Center Lives text
     m_textbox.setString("Lives: X");
     m_textbox.setPosition(winX - m_textbox.getText().getLocalBounds().width / 1.5f,
                           winY - m_textbox.getText().getLocalBounds().height);
@@ -84,6 +87,10 @@ void World::Update(float deltaTime)
     }
     m_spawner.Update(deltaTime);
 
+    // GameOver Manager
+    if (m_lives <= 0)
+        m_bGameOver = true;
+
     // Bullet VS Enemy Collision
     for (auto bullet = m_bullets.begin(); bullet != m_bullets.end();)
     {
@@ -150,7 +157,7 @@ void World::Draw(sf::RenderWindow& window)
     }
 
     // Draw the GUI
-    m_textbox.setString("Lives: " + std::to_string(m_score));
+    m_textbox.setString("Lives: " + std::to_string(m_lives));
     m_textbox.Draw(window);
 
     // Draw Bullets
@@ -164,14 +171,29 @@ void World::Draw(sf::RenderWindow& window)
     m_spawner.Draw(&window);
 }
 
-void World::setScore(int score)
+void World::setLives(int lives)
 {
-    m_score = score;
+    m_lives = abs(lives);
 }
 
-int World::getScore()
+int World::getLives()
 {
-    return m_score;
+    return m_lives;
+}
+
+int World::getRounds()
+{
+    return m_round;
+}
+
+void World::setRounds(int round)
+{
+    m_round = abs(round);
+}
+
+bool World::GameOver()
+{
+    return m_bGameOver;
 }
 
 float World::getGravity()

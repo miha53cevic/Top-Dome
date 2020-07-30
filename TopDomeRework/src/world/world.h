@@ -25,8 +25,13 @@ public:
 
     void Draw       (sf::RenderWindow& window);
 
-    void setScore   (int score);
-    int  getScore   ();
+    void setLives   (int lives);
+    int  getLives   ();
+
+    int getRounds   ();
+    void setRounds  (int round);
+
+    bool GameOver   ();
 
     float getGravity();
     void  setGravity(float g);
@@ -44,7 +49,10 @@ private:
 
     std::string  m_map;
 
-    int          m_score;
+    int          m_lives;
+    int          m_round;
+
+    bool         m_bGameOver;
 
     we::TextBox  m_textbox;
 

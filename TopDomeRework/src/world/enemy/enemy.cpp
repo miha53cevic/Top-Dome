@@ -97,8 +97,13 @@ void Enemy::Collision()
     if (m_world->getTileFromGlobal(topLeft + yVel) == '#' || m_world->getTileFromGlobal(topRight + yVel) == '#')
         m_velocity.y = 0;
 
-    // Reset player positions
+    // Reset enemy positions
     // Bottom of the map
     if (bottomLeft.y + yVel.y + (size.y / 2) >= m_world->getWindowSize().y)
+    {
         m_enemy.setPosition(m_world->getSpawnerPos());
+        
+        // Update score
+        m_world->setLives(m_world->getLives() - 1);
+    }
 }
