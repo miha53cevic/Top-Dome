@@ -1,6 +1,7 @@
 #include "Playing.h"
 #include "../Engine/App.h"
 #include "GameOver.h"
+#include "Paused.h"
 
 Playing::Playing(we::App * app)
     : State(app)
@@ -21,6 +22,13 @@ void Playing::Init()
 void Playing::HandleInput(sf::Event & e)
 {
     m_player.HandleInput(e);
+
+    // Pause Game
+    if (e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Escape)
+    {
+        m_app->getStateMachine().AddState(std::make_unique<Paused>(m_app), false);
+        m_app->getStateMachine().ProcessStateChanges();
+    }
 }
 
 void Playing::Update(float deltaTime)

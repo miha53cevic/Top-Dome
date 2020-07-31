@@ -9,6 +9,7 @@ Player::Player(World * world)
 {
     m_fSpeed = 200.f;
     m_fJumpSpeed = 1000.f;
+    m_maxBullets = 3;
     m_velocity = { 0, 0 };
 
     m_bLookingLeft = false;
@@ -63,6 +64,8 @@ void Player::Update(float deltaTime)
     Collision();
     m_player.move(m_velocity);
 
+    EnemyCollision();
+
     // Reset velocity
     m_velocity.x = 0;
 }
@@ -84,6 +87,11 @@ void Player::changeCharacter(int index)
 void Player::changeSpeed(float fSpeed)
 {
     m_fSpeed = fSpeed;
+}
+
+void Player::changeMaxBullets(int max)
+{
+    m_maxBullets = max;
 }
 
 void Player::Collision()
@@ -145,11 +153,22 @@ void Player::setSkinDirection(Direction dir)
 
 void Player::Shoot()
 {
-    Bullet temp(m_player.getPosition().x, m_player.getPosition().y);
-    temp.setVelocity(300.0f, m_bLookingLeft);
-    m_world->getBulletVector()->push_back(temp);
+    if (m_world->getBulletVector()->size() < m_maxBullets)
+    {
+        Bullet temp(m_player.getPosition().x, m_player.getPosition().y);
+        temp.setVelocity(300.0f, m_bLookingLeft);
+        m_world->getBulletVector()->push_back(temp);
+    }
 }
 
 void Player::EnemyCollision()
 {
+    // When the player collides with the enemy it makes him slow for that round
+    sf::FloatRect playerRect = m_player.getGlobalBounds();
+    for (auto& enemy : *m_world->getSpawner()->getEnemiesVec())
+    {
+        sf::FloatRect enemyRect = enemy->getEnemy()->getGlobalBounds();
+        if (playerRect.intersects(enemyRect))
+            changeSpeed(100.0f);
+    }
 }

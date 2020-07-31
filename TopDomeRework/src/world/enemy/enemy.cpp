@@ -41,17 +41,20 @@ void Enemy::Update(float deltaTime)
     m_velocity.x = 0;
 }
 
-int Enemy::getHealth()
+int Enemy::getHP()
 {
     return m_health;
 }
 
-bool Enemy::Damage(int damage)
+void Enemy::Damage(int damage)
 {
     m_health -= damage;
+}
 
-    if (m_health > 0) return true;
-    else              return false;
+bool Enemy::isDead()
+{
+    if (m_health <= 0) return true;
+    else               return false;
 }
 
 void Enemy::setPosition(sf::Vector2f position)

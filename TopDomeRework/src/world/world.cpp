@@ -1,6 +1,7 @@
 #include "world.h"
 #include <iostream>
 #include "../Engine/App.h"
+#include "../Math/Math.h"
 
 World::World(we::App* app, int winX, int winY)
     : m_textbox(app)
@@ -10,7 +11,8 @@ World::World(we::App* app, int winX, int winY)
     // Default values
     m_map = "";
     m_lives = 3;
-    m_round = 1;
+    m_round = 0;
+    m_killedEnemies = 0;
     m_bGameOver = false;
     
     m_fGravity = 50.f;
@@ -62,15 +64,15 @@ void World::loadMap(std::string path)
 void World::Update(float deltaTime)
 {
     // Remove bullets outside of the map
-    if (m_bullets.size() > 0)
+    if (m_vecBullets.size() > 0)
     {
-        for (auto iter = m_bullets.begin(); iter != m_bullets.end();)
+        for (auto iter = m_vecBullets.begin(); iter != m_vecBullets.end();)
         {
             iter->Update(deltaTime);
 
             if (getTileFromGlobal(iter->getPosition()) == '#')
             {
-                iter = m_bullets.erase(iter);
+                iter = m_vecBullets.erase(iter);
             }
             else iter++;
         }
@@ -81,9 +83,19 @@ void World::Update(float deltaTime)
 #endif
 
     // Round Manager
-    if (m_spawner.getEnemyCount() == 0)
+    if (m_killedEnemies < (int)(m_round * 1.5f))
     {
-        m_spawner.SpawnEnemy(std::make_unique<Enemy>(this));
+        if (m_spawner.getEnemyCount() <= 1)
+        {
+            // Spawn enemies
+            if (Math::iRandom(0, 256) >= 200)
+                m_spawner.SpawnEnemy(std::make_unique<Enemy>(this));
+        }
+    }
+    else
+    {
+        // If the killed quota is hit go to next round
+        m_round++;
     }
     m_spawner.Update(deltaTime);
 
@@ -92,37 +104,50 @@ void World::Update(float deltaTime)
         m_bGameOver = true;
 
     // Bullet VS Enemy Collision
-    for (auto bullet = m_bullets.begin(); bullet != m_bullets.end();)
+    if (!m_vecBullets.empty() && !m_spawner.getEnemiesVec()->empty())
     {
-        bool hit = false;
-
-        for (auto enemy = m_spawner.getEnemies()->begin(); enemy != m_spawner.getEnemies()->end();)
+        for (auto enemyIter = m_spawner.getEnemiesVec()->begin(); enemyIter != m_spawner.getEnemiesVec()->end();)
         {
-            sf::FloatRect bulletRect = bullet->getBullet()->getGlobalBounds();
-            sf::FloatRect enemyRect = enemy->get()->getEnemy()->getGlobalBounds();
+            bool Collision = false;
 
-            if (bulletRect.intersects(enemyRect))
+            sf::FloatRect enemy = enemyIter->get()->getEnemy()->getGlobalBounds();
+
+            for (auto bulletIter = m_vecBullets.begin(); bulletIter != m_vecBullets.end();)
             {
-                hit = true;
+                sf::FloatRect bullet = bulletIter->getBullet()->getGlobalBounds();
 
-                // Delete the bullet
-                bullet = m_bullets.erase(bullet);
-                
-                // If the enemy is dead delete him
-                if (!enemy->get()->Damage(1))
+                if (bullet.intersects(enemy))
                 {
-                    enemy = m_spawner.getEnemies()->erase(enemy);
+                    // Damage the enemy
+                    enemyIter->get()->Damage(1);
+                   
+                    if (enemyIter->get()->isDead())
+                    {
+                        //Chance to spawn powerUp
+                        if (Math::iRandom(0, 256) >= 250)
+                        {
+                            //m_powerUp.Spawn((*iter)->getEnemy()->getPosition().x, (*iter)->getEnemy()->getPosition().y);
+                        }
+
+                        //Delete Enemy
+                        enemyIter = m_spawner.getEnemiesVec()->erase(enemyIter);
+                    }
+
+                    //Delete Bullet
+                    bulletIter = m_vecBullets.erase(bulletIter);
+
+                    Collision = true;
                 }
-                else enemy++;
+                else
+                {
+                    bulletIter++;
+                }
             }
-            else
+            if (!Collision)
             {
-                enemy++;
+                enemyIter++;
             }
         }
-
-        if (!hit)
-            bullet++;
     }
 }
 
@@ -161,9 +186,9 @@ void World::Draw(sf::RenderWindow& window)
     m_textbox.Draw(window);
 
     // Draw Bullets
-    if (m_bullets.size() > 0)
+    if (m_vecBullets.size() > 0)
     {
-        for (auto& i : m_bullets)
+        for (auto& i : m_vecBullets)
             i.Draw(&window);
     }
 
@@ -208,7 +233,7 @@ void World::setGravity(float g)
 
 std::vector<Bullet>* World::getBulletVector()
 {
-    return &m_bullets;
+    return &m_vecBullets;
 }
 
 sf::Vector2i World::getWindowSize()
@@ -224,4 +249,9 @@ sf::Vector2f World::getSpawnpoint()
 sf::Vector2f World::getSpawnerPos()
 {
     return m_spawnerPos;
+}
+
+Spawner * World::getSpawner()
+{
+    return &m_spawner;
 }

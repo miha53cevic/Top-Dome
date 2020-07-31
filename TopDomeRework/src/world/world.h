@@ -42,6 +42,8 @@ public:
     sf::Vector2f getSpawnpoint();
     sf::Vector2f getSpawnerPos();
 
+    Spawner*     getSpawner();
+
 private:
     sf::Vector2i m_mapSize;
     sf::Vector2f m_blockSize;
@@ -51,6 +53,7 @@ private:
 
     int          m_lives;
     int          m_round;
+    int          m_killedEnemies;
 
     bool         m_bGameOver;
 
@@ -61,7 +64,7 @@ private:
 
     float        m_fGravity;
 
-    std::vector<Bullet> m_bullets;
+    std::vector<Bullet> m_vecBullets;
 
     Spawner      m_spawner;
 };

@@ -12,15 +12,15 @@ public:
 
     void Update(float deltaTime)
     {
-        if (m_enemies.size() > 0)
-            for (auto& i : m_enemies)
+        if (m_vecEnemies.size() > 0)
+            for (auto& i : m_vecEnemies)
                 i->Update(deltaTime);
     }
 
     void Draw(sf::RenderWindow* window)
     {
-        if (m_enemies.size() > 0)
-            for (auto& i : m_enemies)
+        if (m_vecEnemies.size() > 0)
+            for (auto& i : m_vecEnemies)
                 i->Draw(window);
     }
 
@@ -32,14 +32,14 @@ public:
     void SpawnEnemy(std::unique_ptr<Enemy> enemy)
     {
         enemy->setPosition(m_position);
-        m_enemies.push_back(std::move(enemy));
+        m_vecEnemies.push_back(std::move(enemy));
     }
 
-    int getEnemyCount() { return m_enemies.size(); }
+    int getEnemyCount() { return m_vecEnemies.size(); }
 
-    std::vector<std::unique_ptr<Enemy>>* getEnemies() { return &m_enemies; }
+    std::vector<std::unique_ptr<Enemy>>* getEnemiesVec() { return &m_vecEnemies; }
 
 private:
-    std::vector<std::unique_ptr<Enemy>> m_enemies;
+    std::vector<std::unique_ptr<Enemy>> m_vecEnemies;
     sf::Vector2f m_position;
 };

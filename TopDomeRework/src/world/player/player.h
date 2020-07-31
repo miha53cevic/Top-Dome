@@ -9,14 +9,15 @@ class Player
 public:
     Player(World* world);
 
-    void Draw           (sf::RenderWindow& window);
-    void HandleInput    (sf::Event & e);
-    void Update         (float deltaTime);
+    void Draw            (sf::RenderWindow& window);
+    void HandleInput     (sf::Event & e);
+    void Update          (float deltaTime);
 
-    void resetPos       ();
+    void resetPos        ();
 
-    void changeCharacter(int index);
-    void changeSpeed    (float fSpeed);
+    void changeCharacter (int index);
+    void changeSpeed     (float fSpeed);
+    void changeMaxBullets(int max);
 
     enum class Direction
     {
@@ -37,6 +38,8 @@ private:
 
     float m_fSpeed;
     float m_fJumpSpeed;
+
+    int   m_maxBullets;
 
     sf::Vector2f m_velocity;
 
