@@ -40,7 +40,7 @@ void Playing::Update(float deltaTime)
     // Check for GameOver
     if (m_world.GameOver())
     {
-        m_app->getStateMachine().AddState(std::make_unique<GameOver>(m_app), false);
+        m_app->getStateMachine().AddState(std::make_unique<GameOver>(m_app, &m_world), false);
         m_app->getStateMachine().ProcessStateChanges();
     }
 }

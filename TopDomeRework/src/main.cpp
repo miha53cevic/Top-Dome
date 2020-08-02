@@ -6,5 +6,5 @@ int main()
     app.CreateWindow(1280, 720, "TopDome");
     app.Run();
 
-	return 0;
+    return 0;
 }

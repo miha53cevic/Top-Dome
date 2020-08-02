@@ -15,7 +15,7 @@ Player::Player(World * world)
 
     m_bLookingLeft = false;
 
-    m_skinIndex = 2;
+    m_skinIndex = 1;
     m_player.setSize(sf::Vector2f(32, 32));
     m_player.setTexture(&we::ResourceManager::get().getTexture("players"));
 }
@@ -194,13 +194,16 @@ void Player::Shoot()
 
 void Player::EnemyCollision()
 {
-    // When the player collides with the enemy it makes him slow for that round
+    // When the player collides with the enemy it ends the game
     sf::FloatRect playerRect = m_player.getGlobalBounds();
     for (auto& enemy : *m_world->getSpawner().getEnemies())
     {
         sf::FloatRect enemyRect = enemy->getEnemy()->getGlobalBounds();
         if (playerRect.intersects(enemyRect))
-            changeSpeed(100.0f);
+        {
+            m_world->setLives(0);
+            m_skinIndex = 2;
+        }
     }
 }
 
@@ -226,6 +229,7 @@ void Player::BulletEnemyCollision()
                     // Damage the enemy
                     enemyIter->get()->Damage(1);
 
+                    // Check if the enemy is dead
                     if (enemyIter->get()->isDead())
                     {
                         //Chance to spawn powerUp
@@ -236,6 +240,9 @@ void Player::BulletEnemyCollision()
 
                         //Delete Enemy
                         enemyIter = enemies->erase(enemyIter);
+
+                        // Add to kill counter
+                        m_world->addToKillCount();
                     }
 
                     //Delete Bullet

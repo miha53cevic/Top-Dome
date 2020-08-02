@@ -36,6 +36,13 @@ public:
         m_vecEnemies.push_back(std::move(enemy));
     }
 
+    void SpawnEnemyType(std::unique_ptr<Enemy> enemy, int hp, float speed, sf::Vector2f size, sf::Color colour)
+    {
+        enemy->setPosition(m_position);
+        enemy->Setup(hp, speed, size, colour);
+        m_vecEnemies.push_back(std::move(enemy));
+    }
+
     int getEnemyCount() { return m_vecEnemies.size(); }
 
     std::vector<std::unique_ptr<Enemy>>* getEnemies() { return &m_vecEnemies; }

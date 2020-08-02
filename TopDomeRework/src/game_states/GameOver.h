@@ -4,11 +4,12 @@
 #include "../modules/gui/TextBox.h"
 
 class App;
+class World;
 
 class GameOver : public we::State
 {
 public:
-    GameOver(we::App* app);
+    GameOver(we::App* app, World* world);
 
     virtual void Init           ();
 
@@ -21,4 +22,5 @@ public:
 
 private:
     we::TextBox m_textbox;
+    we::TextBox m_textbox2;
 };

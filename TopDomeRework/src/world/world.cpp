@@ -13,7 +13,7 @@ World::World(we::App* app, int winX, int winY)
     m_lives = 3;
     m_round = 0;
     m_killedEnemies = 0;
-    m_bGameOver = false;
+    m_bGameOver  = false;
     
     m_fGravity = 50.f;
 
@@ -67,17 +67,28 @@ void World::Update(float deltaTime)
     // Round Manager
     if (m_killedEnemies < (int)(m_round * 1.5f))
     {
-        if (m_spawner.getEnemyCount() <= 1)
+        // Add one more enemy every 3 rounds
+        if (m_spawner.getEnemyCount() < 1 + (m_round / 3))
         {
-            // Spawn enemies
+            // Spawn normal enemies
+            m_spawner.SpawnEnemyType(std::make_unique<Enemy>(this), 1, Math::fRandom(150.0f, 250.0f), {32,32}, sf::Color::Red);
+
+            // Chance to spawn quick enemies
             if (Math::iRandom(0, 256) >= 200)
-                m_spawner.SpawnEnemy(std::make_unique<Enemy>(this));
+                m_spawner.SpawnEnemyType(std::make_unique<Enemy>(this), 1, Math::fRandom(300.0f, 350.0f), { 24,24 }, sf::Color::Yellow);
+
+            // Chance to spawn heavy enemies
+            if (Math::iRandom(0, 256) >= 200)
+                m_spawner.SpawnEnemyType(std::make_unique<Enemy>(this), 3, Math::fRandom(50.0f, 100.0f), { 48,48 }, sf::Color::Magenta);
         }
     }
     else
     {
         // If the killed quota is hit go to next round
         m_round++;
+
+        // Reset killCount
+        m_killedEnemies = 0;
     }
     m_spawner.Update(deltaTime);
 
@@ -147,6 +158,11 @@ void World::setRounds(int round)
 bool World::GameOver()
 {
     return m_bGameOver;
+}
+
+void World::addToKillCount()
+{
+    m_killedEnemies++;
 }
 
 float World::getGravity()

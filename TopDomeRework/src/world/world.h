@@ -27,10 +27,12 @@ public:
     void setLives   (int lives);
     int  getLives   ();
 
-    int getRounds   ();
+    int  getRounds  ();
     void setRounds  (int round);
 
     bool GameOver   ();
+
+    void addToKillCount();
 
     float getGravity();
     void  setGravity(float g);
