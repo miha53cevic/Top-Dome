@@ -1,5 +1,5 @@
 #include "App.h"
-#include "../States/Playing.h"
+#include "../game_states/Playing.h"
 
 we::App::App()
 {

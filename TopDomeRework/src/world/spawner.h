@@ -7,7 +7,10 @@
 class Spawner
 {
 public:
-    Spawner() 
+    Spawner()
+    {}
+    Spawner(sf::Vector2f position)
+        : m_position(position)
     {}
 
     void Update(float deltaTime)
@@ -24,10 +27,8 @@ public:
                 i->Draw(window);
     }
 
-    void setPosition(sf::Vector2f position)
-    {
-        m_position = position;
-    }
+    sf::Vector2f getPosition()                      { return m_position;     }
+    void         setPosition(sf::Vector2f position) { m_position = position; }
 
     void SpawnEnemy(std::unique_ptr<Enemy> enemy)
     {
@@ -37,9 +38,10 @@ public:
 
     int getEnemyCount() { return m_vecEnemies.size(); }
 
-    std::vector<std::unique_ptr<Enemy>>* getEnemiesVec() { return &m_vecEnemies; }
+    std::vector<std::unique_ptr<Enemy>>* getEnemies() { return &m_vecEnemies; }
 
 private:
     std::vector<std::unique_ptr<Enemy>> m_vecEnemies;
+
     sf::Vector2f m_position;
 };

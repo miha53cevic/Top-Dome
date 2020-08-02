@@ -1,6 +1,7 @@
 #include "player.h"
 #include "../world.h"
-#include "../../ResourceManager/ResourceManager.h"
+#include "../../modules/resource/ResourceManager.h"
+#include "../../modules/math/Math.h"
 
 Player::Player(World * world)
     : m_world(world)
@@ -21,7 +22,15 @@ Player::Player(World * world)
 
 void Player::Draw(sf::RenderWindow & window)
 {
+    // Draw the player
     window.draw(m_player);
+
+    // Draw Bullets
+    if (m_vecBullets.size() > 0)
+    {
+        for (auto& i : m_vecBullets)
+            i.Draw(&window);
+    }
 }
 
 void Player::HandleInput(sf::Event & e)
@@ -65,14 +74,31 @@ void Player::Update(float deltaTime)
     m_player.move(m_velocity);
 
     EnemyCollision();
+    BulletEnemyCollision();
 
     // Reset velocity
     m_velocity.x = 0;
+
+    // Remove bullets outside of the map
+    if (m_vecBullets.size() > 0)
+    {
+        for (auto iter = m_vecBullets.begin(); iter != m_vecBullets.end();)
+        {
+            iter->Update(deltaTime);
+
+            if (m_world->getTileFromGlobal(iter->getBullet().getPosition()) == '#')
+            {
+                iter = m_vecBullets.erase(iter);
+            }
+            else iter++;
+        }
+    }
 }
 
-void Player::resetPos()
+void Player::SpawnPlayer(sf::Vector2f spawnpoint)
 {
-    m_player.setPosition(m_world->getSpawnpoint().x, m_world->getSpawnpoint().y);
+    m_spawnpoint = spawnpoint;
+    m_player.setPosition(spawnpoint);
 }
 
 void Player::changeCharacter(int index)
@@ -92,6 +118,11 @@ void Player::changeSpeed(float fSpeed)
 void Player::changeMaxBullets(int max)
 {
     m_maxBullets = max;
+}
+
+std::vector<Bullet>& Player::getBulletsVector()
+{
+    return m_vecBullets;
 }
 
 void Player::Collision()
@@ -125,7 +156,7 @@ void Player::Collision()
     // Reset player positions
     // Bottom of the map
     if (bottomLeft.y + yVel.y + 16 >= m_world->getWindowSize().y)
-        m_player.setPosition(m_world->getSpawnpoint());
+        m_player.setPosition(m_spawnpoint);
 
     // Top of the map
     if (topLeft.y + yVel.y <= 0)
@@ -153,11 +184,11 @@ void Player::setSkinDirection(Direction dir)
 
 void Player::Shoot()
 {
-    if (m_world->getBulletVector()->size() < m_maxBullets)
+    if (m_vecBullets.size() < m_maxBullets)
     {
-        Bullet temp(m_player.getPosition().x, m_player.getPosition().y);
+        Bullet temp(m_player.getPosition().x + m_player.getSize().x / 2, m_player.getPosition().y);
         temp.setVelocity(300.0f, m_bLookingLeft);
-        m_world->getBulletVector()->push_back(temp);
+        m_vecBullets.push_back(temp);
     }
 }
 
@@ -165,10 +196,62 @@ void Player::EnemyCollision()
 {
     // When the player collides with the enemy it makes him slow for that round
     sf::FloatRect playerRect = m_player.getGlobalBounds();
-    for (auto& enemy : *m_world->getSpawner()->getEnemiesVec())
+    for (auto& enemy : *m_world->getSpawner().getEnemies())
     {
         sf::FloatRect enemyRect = enemy->getEnemy()->getGlobalBounds();
         if (playerRect.intersects(enemyRect))
             changeSpeed(100.0f);
+    }
+}
+
+void Player::BulletEnemyCollision()
+{
+    auto enemies = m_world->getSpawner().getEnemies();
+
+    // Bullet VS Enemy Collision
+    if (!m_vecBullets.empty() && !enemies->empty())
+    {
+        for (auto enemyIter = enemies->begin(); enemyIter != enemies->end();)
+        {
+            bool Collision = false;
+
+            sf::FloatRect enemy = enemyIter->get()->getEnemy()->getGlobalBounds();
+
+            for (auto bulletIter = m_vecBullets.begin(); bulletIter != m_vecBullets.end();)
+            {
+                sf::FloatRect bullet = bulletIter->getBullet().getGlobalBounds();
+
+                if (bullet.intersects(enemy))
+                {
+                    // Damage the enemy
+                    enemyIter->get()->Damage(1);
+
+                    if (enemyIter->get()->isDead())
+                    {
+                        //Chance to spawn powerUp
+                        if (Math::iRandom(0, 256) >= 250)
+                        {
+                            //m_powerUp.Spawn((*iter)->getEnemy()->getPosition().x, (*iter)->getEnemy()->getPosition().y);
+                        }
+
+                        //Delete Enemy
+                        enemyIter = enemies->erase(enemyIter);
+                    }
+
+                    //Delete Bullet
+                    bulletIter = m_vecBullets.erase(bulletIter);
+
+                    Collision = true;
+                }
+                else
+                {
+                    bulletIter++;
+                }
+            }
+            if (!Collision)
+            {
+                enemyIter++;
+            }
+        }
     }
 }

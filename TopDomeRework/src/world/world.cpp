@@ -1,7 +1,7 @@
 #include "world.h"
 #include <iostream>
-#include "../Engine/App.h"
-#include "../Math/Math.h"
+#include "../engine/App.h"
+#include "../modules/math/Math.h"
 
 World::World(we::App* app, int winX, int winY)
     : m_textbox(app)
@@ -53,34 +53,16 @@ void World::loadMap(std::string path)
                 if (getTileFromLocal(j, i) == 'S')
                     m_spawnpoint = sf::Vector2f(j * m_blockSize.x, i * m_blockSize.y);
                 else if (getTileFromLocal(j, i) == 'E')
-                    m_spawnerPos = sf::Vector2f(j * m_blockSize.x, i * m_blockSize.y);
+                    m_spawner.setPosition(sf::Vector2f(j * m_blockSize.x, i * m_blockSize.y));
             }
         }
-        m_spawner.setPosition(m_spawnerPos);
     }
     else std::cout << "Could not load map " << path << std::endl;
 }
 
 void World::Update(float deltaTime)
 {
-    // Remove bullets outside of the map
-    if (m_vecBullets.size() > 0)
-    {
-        for (auto iter = m_vecBullets.begin(); iter != m_vecBullets.end();)
-        {
-            iter->Update(deltaTime);
-
-            if (getTileFromGlobal(iter->getPosition()) == '#')
-            {
-                iter = m_vecBullets.erase(iter);
-            }
-            else iter++;
-        }
-    }
-
-#ifdef DEBUG
-    std::cout << "Bullets: " << m_bullets.size() << "\n";
-#endif
+    
 
     // Round Manager
     if (m_killedEnemies < (int)(m_round * 1.5f))
@@ -102,53 +84,6 @@ void World::Update(float deltaTime)
     // GameOver Manager
     if (m_lives <= 0)
         m_bGameOver = true;
-
-    // Bullet VS Enemy Collision
-    if (!m_vecBullets.empty() && !m_spawner.getEnemiesVec()->empty())
-    {
-        for (auto enemyIter = m_spawner.getEnemiesVec()->begin(); enemyIter != m_spawner.getEnemiesVec()->end();)
-        {
-            bool Collision = false;
-
-            sf::FloatRect enemy = enemyIter->get()->getEnemy()->getGlobalBounds();
-
-            for (auto bulletIter = m_vecBullets.begin(); bulletIter != m_vecBullets.end();)
-            {
-                sf::FloatRect bullet = bulletIter->getBullet()->getGlobalBounds();
-
-                if (bullet.intersects(enemy))
-                {
-                    // Damage the enemy
-                    enemyIter->get()->Damage(1);
-                   
-                    if (enemyIter->get()->isDead())
-                    {
-                        //Chance to spawn powerUp
-                        if (Math::iRandom(0, 256) >= 250)
-                        {
-                            //m_powerUp.Spawn((*iter)->getEnemy()->getPosition().x, (*iter)->getEnemy()->getPosition().y);
-                        }
-
-                        //Delete Enemy
-                        enemyIter = m_spawner.getEnemiesVec()->erase(enemyIter);
-                    }
-
-                    //Delete Bullet
-                    bulletIter = m_vecBullets.erase(bulletIter);
-
-                    Collision = true;
-                }
-                else
-                {
-                    bulletIter++;
-                }
-            }
-            if (!Collision)
-            {
-                enemyIter++;
-            }
-        }
-    }
 }
 
 char World::getTileFromLocal(int x, int y)
@@ -184,13 +119,6 @@ void World::Draw(sf::RenderWindow& window)
     // Draw the GUI
     m_textbox.setString("Lives: " + std::to_string(m_lives));
     m_textbox.Draw(window);
-
-    // Draw Bullets
-    if (m_vecBullets.size() > 0)
-    {
-        for (auto& i : m_vecBullets)
-            i.Draw(&window);
-    }
 
     // Draw enemies
     m_spawner.Draw(&window);
@@ -231,9 +159,9 @@ void World::setGravity(float g)
     m_fGravity = g;
 }
 
-std::vector<Bullet>* World::getBulletVector()
+sf::Vector2f World::getSpawnpoint()
 {
-    return &m_vecBullets;
+    return m_spawnpoint;
 }
 
 sf::Vector2i World::getWindowSize()
@@ -241,17 +169,7 @@ sf::Vector2i World::getWindowSize()
     return m_winSize;
 }
 
-sf::Vector2f World::getSpawnpoint()
+Spawner& World::getSpawner()
 {
-    return m_spawnpoint;
-}
-
-sf::Vector2f World::getSpawnerPos()
-{
-    return m_spawnerPos;
-}
-
-Spawner * World::getSpawner()
-{
-    return &m_spawner;
+    return m_spawner;
 }

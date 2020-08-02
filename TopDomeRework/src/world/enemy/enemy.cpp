@@ -1,7 +1,7 @@
 #include "enemy.h"
 
 #include "../world.h"
-#include "../../Math/Math.h"
+#include "../../modules/math/Math.h"
 
 Enemy::Enemy(World * world)
     : m_world(world)
@@ -104,7 +104,7 @@ void Enemy::Collision()
     // Bottom of the map
     if (bottomLeft.y + yVel.y + (size.y / 2) >= m_world->getWindowSize().y)
     {
-        m_enemy.setPosition(m_world->getSpawnerPos());
+        m_enemy.setPosition(m_world->getSpawner().getPosition());
         
         // Update score
         m_world->setLives(m_world->getLives() - 1);

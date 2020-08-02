@@ -4,8 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-#include "../GUI/TextBox.h"
-#include "Bullet.h"
+#include "../modules/gui/TextBox.h"
 #include "spawner.h"
 
 class App;
@@ -36,13 +35,11 @@ public:
     float getGravity();
     void  setGravity(float g);
 
-    std::vector<Bullet>* getBulletVector();
-
     sf::Vector2i getWindowSize();
-    sf::Vector2f getSpawnpoint();
-    sf::Vector2f getSpawnerPos();
 
-    Spawner*     getSpawner();
+    sf::Vector2f getSpawnpoint();
+
+    Spawner&     getSpawner();
 
 private:
     sf::Vector2i m_mapSize;
@@ -56,15 +53,11 @@ private:
     int          m_killedEnemies;
 
     bool         m_bGameOver;
+    float        m_fGravity;
 
     we::TextBox  m_textbox;
 
-    sf::Vector2f m_spawnpoint;
-    sf::Vector2f m_spawnerPos;
-
-    float        m_fGravity;
-
-    std::vector<Bullet> m_vecBullets;
-
     Spawner      m_spawner;
+
+    sf::Vector2f m_spawnpoint;
 };
